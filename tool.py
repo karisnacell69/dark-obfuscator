@@ -1,10 +1,11 @@
-import os, time, hashlib, requests, base64, platform
+import os, time, hashlib, requests, base64, platform, sys
 
 # =========================
 # CONFIG
 # =========================
 API_URL = "https://premiumtools-enscript-descript.ct.ws/api.php"
 DONASI_URL = "https://premiumtools-enscript-descript.ct.ws/donasi.php"
+WA_URL = "https://wa.me/6283195664588"
 
 # =========================
 # COLOR
@@ -12,6 +13,9 @@ DONASI_URL = "https://premiumtools-enscript-descript.ct.ws/donasi.php"
 PURPLE = "\033[1;35m"
 GREEN = "\033[1;92m"
 WHITE = "\033[0m"
+RED = "\033[1;91m"
+CYAN = "\033[1;36m"
+YELLOW = "\033[1;33m"
 
 # =========================
 # DEVICE ID
@@ -21,7 +25,7 @@ def get_device_id():
     return hashlib.sha256(base.encode()).hexdigest()
 
 # =========================
-# BANNER
+# CLEAR + BANNER
 # =========================
 def banner():
     os.system("clear")
@@ -29,18 +33,19 @@ def banner():
     print("║   DARK OBFUSCATOR - GOD MODE        ║")
     print("╠══════════════════════════════════════╣")
     print(GREEN + "║ 🔐 Secure Python Protection         ║")
-    print("║ ⚡ Anti Sharing + License Online   ║")
+    print("║ ⚡ Anti Sharing + License Online    ║")
     print("║ 💰 QRIS Payment Support            ║")
+    print("║ 🤖 Auto System Premium             ║")
     print("║ Developer : Dark User Subang       ║")
     print("╚══════════════════════════════════════╝" + WHITE)
 
 # =========================
-# LOADING
+# LOADING ANIMASI
 # =========================
-def loading():
-    print(PURPLE + "Processing", end="")
-    for i in range(5):
-        print(GREEN + "●", end="", flush=True)
+def loading(msg="Processing"):
+    print(PURPLE + msg, end="")
+    for _ in range(5):
+        print(GREEN + " ●", end="", flush=True)
         time.sleep(0.3)
     print(WHITE)
 
@@ -50,8 +55,8 @@ def loading():
 def check_license():
     try:
         if not os.path.exists("key.txt"):
-            print("❌ key.txt tidak ditemukan!")
-            exit()
+            print(RED + "❌ key.txt tidak ditemukan!" + WHITE)
+            sys.exit()
 
         key = open("key.txt").read().strip()
         device = get_device_id()
@@ -63,24 +68,24 @@ def check_license():
             print(GREEN + "✅ License Valid (Device Locked)" + WHITE)
 
         elif res == "EXPIRED":
-            print("⏳ License Expired")
-            exit()
+            print(RED + "⏳ License Expired" + WHITE)
+            sys.exit()
 
         elif res == "BANNED":
-            print("🚫 License dibanned admin")
-            exit()
+            print(RED + "🚫 License dibanned admin" + WHITE)
+            sys.exit()
 
         elif res == "BANNED_DEVICE":
-            print("🚫 Device berbeda! License diblokir")
-            exit()
+            print(RED + "🚫 Device berbeda! License diblokir" + WHITE)
+            sys.exit()
 
         else:
-            print("❌ Invalid License")
-            exit()
+            print(RED + "❌ Invalid License" + WHITE)
+            sys.exit()
 
     except Exception as e:
-        print("⚠️ Error license:", e)
-        exit()
+        print(RED + "⚠️ Server error: " + str(e) + WHITE)
+        sys.exit()
 
 # =========================
 # OBFUSCATE
@@ -88,106 +93,80 @@ def check_license():
 def obfuscate():
     file = input("📂 File Python: ")
     if not os.path.exists(file):
-        print("❌ File tidak ditemukan!")
+        print(RED + "❌ File tidak ditemukan!" + WHITE)
         return
 
-    out = input("📁 Output Folder: ")
-    loading()
+    out = input("📁 Output Folder (default: dist): ") or "dist"
+
+    loading("Obfuscating")
     os.system(f"pyarmor gen -O {out} {file}")
-    print(GREEN + "✅ Obfuscate berhasil!" + WHITE)
-    input("Enter...")
+
+    print(GREEN + f"✅ Berhasil! Output: {out}/" + WHITE)
+    input("Enter untuk kembali...")
 
 # =========================
-# ENCRYPT FILE
+# ENCRYPT BASE64
 # =========================
 def encrypt_file():
     file = input("📂 File: ")
     if not os.path.exists(file):
-        print("❌ File tidak ditemukan!")
+        print(RED + "❌ File tidak ditemukan!" + WHITE)
         return
 
-    data = open(file, "rb").read()
-    enc = base64.b64encode(data)
+    with open(file, "rb") as f:
+        data = base64.b64encode(f.read()).decode()
 
-    out = file + ".enc"
-    open(out, "wb").write(enc)
+    out = "enc_" + os.path.basename(file)
 
-    print(GREEN + f"🔐 Encrypted: {out}" + WHITE)
+    with open(out, "w") as f:
+        f.write(f"import base64\nexec(base64.b64decode('{data}'))")
+
+    print(GREEN + f"✅ Encrypted: {out}" + WHITE)
     input("Enter...")
 
 # =========================
-# DECRYPT FILE
-# =========================
-def decrypt_file():
-    file = input("📂 File .enc: ")
-    if not os.path.exists(file):
-        print("❌ File tidak ditemukan!")
-        return
-
-    data = base64.b64decode(open(file, "rb").read())
-    out = file.replace(".enc", "_dec")
-
-    open(out, "wb").write(data)
-
-    print(GREEN + f"🔓 Decrypted: {out}" + WHITE)
-    input("Enter...")
-
-# =========================
-# DONASI QRIS
+# DONASI
 # =========================
 def donasi():
-    banner()
-    print(GREEN + "\n💰 MEMBUKA HALAMAN DONASI..." + WHITE)
-
-    try:
-        os.system(f"termux-open-url {DONASI_URL}")
-    except:
-        print("⚠️ Gagal membuka browser")
-
-    input("\nEnter untuk kembali...")
+    print(CYAN + "Membuka halaman donasi..." + WHITE)
+    os.system(f"termux-open-url {DONASI_URL}")
 
 # =========================
-# MENU
+# MENU UI
 # =========================
 def menu():
-    print(PURPLE + "\n════════ MENU ════════")
-    print(GREEN + " [1] 🔐 Obfuscate Python")
-    print(GREEN + " [2] 🧬 Encrypt File")
-    print(GREEN + " [3] 🔓 Decrypt File")
-    print(GREEN + " [4] 💰 Donasi QRIS")
-    print(GREEN + " [5] ❌ Exit")
-    print(PURPLE + "══════════════════════" + WHITE)
+    while True:
+        banner()
+
+        print(YELLOW + "\n[ MENU UTAMA ]" + WHITE)
+        print("1. 🔐 Obfuscate Python")
+        print("2. 🔒 Encrypt Base64")
+        print("3. 💰 Donasi")
+        print("4. 📞 Contact Dev")
+        print("5. ❌ Exit")
+
+        pilih = input("\nPilih menu: ")
+
+        if pilih == "1":
+            obfuscate()
+        elif pilih == "2":
+            encrypt_file()
+        elif pilih == "3":
+            donasi()
+        elif pilih == "4":
+            os.system(f"termux-open-url {WA_URL}")
+        elif pilih == "5":
+            print("Bye!")
+            break
+        else:
+            print(RED + "❌ Pilihan tidak valid!" + WHITE)
+            time.sleep(1)
 
 # =========================
 # MAIN
 # =========================
-def main():
+if __name__ == "__main__":
     banner()
     check_license()
-
-    while True:
-        banner()
-        menu()
-
-        c = input("➤ Select: ")
-
-        if c == "1":
-            obfuscate()
-        elif c == "2":
-            encrypt_file()
-        elif c == "3":
-            decrypt_file()
-        elif c == "4":
-            donasi()
-        elif c == "5":
-            print("👋 Exit...")
-            break
-        else:
-            print("❌ Pilihan salah")
-            time.sleep(1)
-
-# =========================
-# RUN
-# =========================
-if __name__ == "__main__":
-    main()
+    time.sleep(1)
+    menu()
