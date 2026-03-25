@@ -1,92 +1,144 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# ANTI ERROR
-set -e
-
 clear
-
-# WARNA
-PURPLE='\033[1;35m'
-GREEN='\033[1;32m'
-RED='\033[1;31m'
-YELLOW='\033[1;33m'
-CYAN='\033[1;36m'
-NC='\033[0m'
-
-# BANNER
-echo -e "${PURPLE}"
 echo "======================================"
-echo " DARK OBFUSCATOR INSTALLER ULTRA PRO "
+echo "   DARK OBFUSCATOR INSTALLER ULTRA   "
 echo "======================================"
-echo -e "${NC}"
-
 sleep 1
 
-# LOADING
-loading() {
-    echo -ne "${CYAN}Processing"
-    for i in {1..5}; do
-        echo -ne "${GREEN} ●"
-        sleep 0.3
-    done
-    echo -e "${NC}"
-}
-
-loading
-
-# CEK INTERNET
-echo -e "${YELLOW}[+] Checking internet...${NC}"
-if ! ping -c 1 google.com > /dev/null 2>&1; then
-    echo -e "${RED}[!] No internet connection!${NC}"
-    exit 1
-fi
-
-# UPDATE REPO
-echo -e "${YELLOW}[+] Setting repository...${NC}"
-termux-change-repo || true
-
-echo -e "${YELLOW}[+] Updating system...${NC}"
+# =========================
+# UPDATE SYSTEM
+# =========================
 pkg update -y && pkg upgrade -y
 
+# =========================
 # INSTALL DEPENDENCY
-echo -e "${YELLOW}[+] Installing dependencies...${NC}"
-pkg install -y python git clang make libffi openssl termux-api curl
+# =========================
+echo "[+] Installing dependencies..."
+pkg install -y python git clang make libffi openssl curl
 
-# FIX PIP TERMUX (SAFE)
-echo -e "${YELLOW}[+] Fixing pip (Termux safe)...${NC}"
-python -m ensurepip --upgrade > /dev/null 2>&1 || true
+# =========================
+# FIX PIP (TERMUX SAFE)
+# =========================
+echo "[+] Fixing pip..."
+python -m ensurepip --upgrade || true
 
-# INSTALL MODULE TANPA ERROR
-echo -e "${YELLOW}[+] Installing Python modules...${NC}"
+# =========================
+# INSTALL MODULE
+# =========================
+echo "[+] Installing python modules..."
 pip install requests --no-cache-dir
-pip install pyarmor --no-cache-dir || pip install pyarmor==7.7.0 --no-cache-dir
+pip install pyarmor --no-cache-dir || pip install pyarmor==7.7.0
 
-# SETUP DIRECTORY
-echo -e "${YELLOW}[+] Setting up workspace...${NC}"
+# =========================
+# SETUP WORKSPACE
+# =========================
+echo "[+] Setting workspace..."
 mkdir -p ~/dark-obfuscator
 cd ~/dark-obfuscator
 
-# DEFAULT KEY
-echo -e "${YELLOW}[+] Creating default key...${NC}"
+# =========================
+# CREATE KEY
+# =========================
+echo "[+] Creating default key..."
 echo "DARK-TRIAL" > key.txt
 
-# CREATE TOOL
-echo -e "${YELLOW}[+] Creating main tool...${NC}"
+# =========================
+# CREATE TOOL.PY (AUTO FIX)
+# =========================
+echo "[+] Creating main tool..."
 
 cat > tool.py << 'EOF'
-# (script kamu tetap di sini, tidak diubah)
+import os, time, hashlib, requests, base64, platform, sys
+
+API_URL = "https://premiumtools-enscript-descript.ct.ws/api.php"
+DONASI_URL = "https://premiumtools-enscript-descript.ct.ws/donasi.php"
+WA_URL = "https://wa.me/6283195664588"
+
+PURPLE = "\033[1;35m"
+GREEN = "\033[1;92m"
+WHITE = "\033[0m"
+RED = "\033[1;91m"
+
+def banner():
+    os.system("clear")
+    print(PURPLE + "╔══════════════════════════════════════╗")
+    print("║   DARK OBFUSCATOR - GOD MODE        ║")
+    print("╠══════════════════════════════════════╣")
+    print(GREEN + "║ 🔐 Secure Python Protection         ║")
+    print("║ ⚡ License Online System           ║")
+    print("║ 💰 Auto Selling Ready             ║")
+    print("║ Developer : Dark User Subang       ║")
+    print("╚══════════════════════════════════════╝" + WHITE)
+
+def loading():
+    print("Processing", end="")
+    for _ in range(5):
+        print(".", end="", flush=True)
+        time.sleep(0.3)
+    print()
+
+def get_device_id():
+    base = platform.node() + platform.system() + platform.machine()
+    return hashlib.sha256(base.encode()).hexdigest()
+
+def check_license():
+    try:
+        if not os.path.exists("key.txt"):
+            print("❌ key.txt tidak ada")
+            return
+
+        key = open("key.txt").read().strip()
+        device = get_device_id()
+
+        res = requests.get(f"{API_URL}?key={key}&device={device}", timeout=5).text.strip()
+
+        if res == "VALID":
+            print(GREEN + "✅ License OK" + WHITE)
+        else:
+            print(RED + "❌ License invalid / server error" + WHITE)
+
+    except:
+        print("⚠️ Gagal cek license (offline?)")
+
+def obfuscate():
+    f = input("File: ")
+    if not os.path.exists(f):
+        print("❌ File tidak ada")
+        return
+
+    loading()
+    os.system(f"pyarmor gen -O dist {f}")
+    print("✅ Berhasil! (folder dist/)")
+
+def menu():
+    while True:
+        print("\n[1] Obfuscate")
+        print("[2] Donasi")
+        print("[3] Exit")
+
+        p = input("Pilih: ")
+
+        if p == "1":
+            obfuscate()
+        elif p == "2":
+            os.system(f"termux-open-url {DONASI_URL}")
+        else:
+            break
+
+if __name__ == "__main__":
+    banner()
+    check_license()
+    menu()
 EOF
 
-chmod +x tool.py
-
-sleep 1
-
+# =========================
 # DONE
-echo -e "${GREEN}"
+# =========================
+echo ""
 echo "======================================"
-echo "     INSTALL SUCCESS - ULTRA READY    "
+echo " INSTALL SUCCESS - READY TO USE "
 echo "======================================"
-echo -e "${NC}"
-
-echo -e "${CYAN}Run this command:${NC}"
-echo -e "${PURPLE}cd ~/dark-obfuscator && python tool.py${NC}"
+echo ""
+echo "Run this:"
+echo "cd ~/dark-obfuscator && python tool.py"
